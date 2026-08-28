@@ -1,7 +1,7 @@
 import time
-
-from Creature import *
 import os
+import random
+from Creature import *
 
 class Board():
     # dict 80 * 24 zellen.
@@ -55,9 +55,14 @@ class Board():
                     row += "_"
             print(row)
 
-import time
-import os
-import random
+    def tick(self):
+        for position, ids in self.locations.items():
+            cell = []
+            for id in ids:
+                cell.append(self.creature_registry[id])
+            for creature in cell:
+                creature.withyou(cell)
+
 
 def main():
     board = Board(80, 24)

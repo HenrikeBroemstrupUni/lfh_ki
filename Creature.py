@@ -1,3 +1,4 @@
+import random
 class Creature:
     counter = 0
     def __init__(self, name, start_hp):
@@ -11,6 +12,20 @@ class Creature:
             return self.id == other.id
         else:
             return False
+
+    def withyou(self, cell):
+        other_creatures = []
+        for other in cell:
+            if other == self:
+                continue
+            else:
+                other_creatures.append(other)
+        return other_creatures
+
+    def random_move_request(self):
+        dx =  random.randint(-1, 1)
+        dy =  random.randint(-1, 1)
+        return dx, dy
 
 class Plant(Creature):
     pass
@@ -34,39 +49,6 @@ class Cow(Herbivore):
 class Wolf(Carnivore):
     def __init__(self, name):
         super().__init__(name, 100)
-
-class Board():
-    # dict 80 * 24 zellen.
-    def __init__(self, size_x, size_y):
-        self.size_x = size_x # 0 bis 79
-        self.size_y = size_y # 0 bis 23
-        self.locations = {}
-        self.creature_registry = {}
-        self.locations_by_id = {}
-
-    def place_creature(self, creature: Creature, position_x, position_y):
-        self.check_boarders(position_x, position_y)
-        if (position_x, position_y) not in self.locations:
-            self.locations[(position_x, position_y)] = []
-        self.locations[(position_x, position_y)].append(creature.id)
-        self.creature_registry[creature.id] = creature
-        self.locations_by_id[creature.id] = (position_x, position_y)
-
-    def move_creature(self, creature: Creature, position_x: int, position_y: int):
-        self.remove_creature(creature)
-        self.place_creature(creature, position_x, position_y)
-
-    def remove_creature(self, creature: Creature):
-        position_x, position_y = self.locations_by_id.pop(creature.id)
-        self.locations[(position_x, position_y)].remove(creature.id)
-        self.creature_registry.pop(creature.id)
-        if not self.locations[(position_x, position_y)]:
-            del self.locations[(position_x, position_y)]
-
-
-    def check_boarders(self, position_x: int, position_y: int):
-        if position_x >= self.size_x or position_x < 0 or position_y >= self.size_y or position_y < 0:
-            raise ValueError(f"Position ({position_x}, {position_y}) liegt außerhalb des Boards")
 
 
 """
