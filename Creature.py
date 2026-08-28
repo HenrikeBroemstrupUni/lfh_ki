@@ -68,6 +68,7 @@ class Board():
         if position_x >= self.size_x or position_x < 0 or position_y >= self.size_y or position_y < 0:
             raise ValueError(f"Position ({position_x}, {position_y}) liegt außerhalb des Boards")
 
+
 """
 def main():
     wolf1 = Wolf('wolf1')
