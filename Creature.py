@@ -29,11 +29,17 @@ class Creature:
         new_position = (x + dx, y + dy)
         return new_position
 
+    def move_request(self, current_position):
+        return self.random_move_request(current_position) # to be implemented for each animal
+
 
 class Plant(Creature):
 
     def eaten(self):
         self.hp = max(self.hp - 5, 0)
+
+    def move_request(self, current_position):
+        return current_position # gras doesnt move
 
 class Grass(Plant):
     def __init__(self, name):

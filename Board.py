@@ -70,14 +70,11 @@ class Board():
         # phase 1 movement
         creatures_to_move = list(self.creature_registry.values())
         for creature in creatures_to_move:
-            if isinstance(creature, Grass):
-                continue # gras bewegt sich nicht
-
             current_position = self.locations_by_id[creature.id]
-            new_position = creature.random_move_request(current_position)
+            new_position = creature.move_request(current_position)
 
             # check ob neue position gültig ist, sonst nicht dahin bewegen
-            if Board.is_valid_bounds(new_position):
+            if (new_position != current_position) and Board.is_valid_bounds(new_position):
                 new_x, new_y = new_position
                 self.move_creature(creature, new_x, new_y)
 
