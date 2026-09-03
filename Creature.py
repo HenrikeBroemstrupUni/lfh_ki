@@ -22,11 +22,12 @@ class Creature:
                 other_creatures.append(other)
         return other_creatures
 
-    def random_move_request(self):
+    def random_move_request(self, current_position):
+        x, y = current_position
         dx =  random.randint(-1, 1)
         dy =  random.randint(-1, 1)
-        return dx, dy
-
+        new_position = (x + dx, y + dy)
+        return new_position
 
 
 class Plant(Creature):

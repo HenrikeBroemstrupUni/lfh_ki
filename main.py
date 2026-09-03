@@ -57,24 +57,6 @@ def main():
         os.system('clear')
         board.draw()
         time.sleep(speed)
-
-        for entry in animals:
-            animal, x, y = entry
-            if isinstance(animal, Grass):
-                continue
-            if animal.id not in board.creature_registry:  # nicht mehr auf dem Board
-                continue
-
-            new_x = x + random.randint(-1, 1)
-            new_y = y + random.randint(-1, 1)
-
-            # keep within bounds
-            new_x = max(0, min(new_x, 79))
-            new_y = max(0, min(new_y, 23))
-
-            board.move_creature(animal, new_x, new_y)
-            entry[1], entry[2] = new_x, new_y
-
         board.tick()
 
 

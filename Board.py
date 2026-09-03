@@ -4,8 +4,8 @@ from Creature import Creature, Cow, Wolf, Grass
 class Board():
     # dict 80 * 24 zellen.
     def __init__(self, size_x, size_y):
-        self.size_x = size_x # 0 bis 79
-        self.size_y = size_y # 0 bis 23
+        Board.size_x = size_x # 0 bis 79
+        Board.size_y = size_y # 0 bis 23
         self.locations = {}
         self.creature_registry = {}
         self.locations_by_id = {}
@@ -30,8 +30,20 @@ class Board():
             del self.locations[(position_x, position_y)]
 
     def check_boarders(self, position_x: int, position_y: int):
-        if position_x >= self.size_x or position_x < 0 or position_y >= self.size_y or position_y < 0:
+        if Board.is_fail_bounds((position_x, position_y)):
             raise ValueError(f"Position ({position_x}, {position_y}) liegt außerhalb des Boards")
+
+    @staticmethod
+    def is_valid_bounds(position):
+        x, y = position
+        x_within_bounds = x >= 0 and x < Board.size_x # true or false
+        y_within_bounds = y >= 0 and y < Board.size_y
+
+        return x_within_bounds and y_within_bounds
+
+    @staticmethod
+    def is_fail_bounds(position):
+        return not Board.is_valid_bounds(position)
 
 
     ### AB HIER TERMINAL AUSGABE ###
@@ -53,7 +65,23 @@ class Board():
                     row += "_"
             print(row)
 
+
     def tick(self):
+        # phase 1 movement
+        creatures_to_move = list(self.creature_registry.values())
+        for creature in creatures_to_move:
+            if isinstance(creature, Grass):
+                continue # gras bewegt sich nicht
+
+            current_position = self.locations_by_id[creature.id]
+            new_position = creature.random_move_request(current_position)
+
+            # check ob neue position gültig ist, sonst nicht dahin bewegen
+            if Board.is_valid_bounds(new_position):
+                new_x, new_y = new_position
+                self.move_creature(creature, new_x, new_y)
+
+        # phase 2 for interaction, zb eating
         for position, ids in self.locations.items():
             cell = []
             for id in ids:
@@ -63,8 +91,8 @@ class Board():
                     creature.hunt(cell)
                 if isinstance(creature, Cow):
                     creature.eat(cell)
+
+        # phase 3 remove the dead
         dead = [creature for creature in self.creature_registry.values() if creature.hp <= 0]
         for creature in dead:
             self.remove_creature(creature)
-
-
