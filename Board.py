@@ -48,7 +48,6 @@ class Board():
 
     ### AB HIER TERMINAL AUSGABE ###
     def draw(self):
-        os.system('clear')
         for y in range(self.size_y):
             row = ""
             for x in range(self.size_x):

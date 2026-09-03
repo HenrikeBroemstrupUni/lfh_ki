@@ -54,7 +54,7 @@ def main():
         board.place_creature(animal, x, y)
 
     for step in range(90):
-        os.system('clear')
+        os.system('cls' if os.name == 'nt' else 'clear')
         board.draw()
         time.sleep(speed)
         board.tick()
