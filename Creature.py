@@ -27,14 +27,21 @@ class Creature:
         dy =  random.randint(-1, 1)
         return dx, dy
 
+
+
 class Plant(Creature):
-    pass
+
+    def eaten(self):
+        self.hp = max(self.hp - 5, 0)
+
 class Grass(Plant):
     def __init__(self, name):
         super().__init__(name, 50)
 
+
 class Animal(Creature):
-    pass
+    def eaten(self):
+        self.hp = 0   # nach hp <= 0 checken bei Tick um tote Tiere zu entfernen
 
 class Herbivore(Animal):
     pass
@@ -45,10 +52,30 @@ class Carnivore(Animal):
 class Cow(Herbivore):
     def __init__(self, name):
         super().__init__(name, 200)
+        self.start_hp = self.hp
+
+    def eat(self, cell):
+        other_creatures = self.withyou(cell)
+        for plant in other_creatures:
+            if isinstance(plant, Plant):
+                self.hp = min(self.hp + 10, self.start_hp*2 )
+                plant.eaten()
+                break
 
 class Wolf(Carnivore):
     def __init__(self, name):
         super().__init__(name, 100)
+        self.start_hp = self.hp
+
+
+    def hunt(self, cell):
+        other_creatures = self.withyou(cell)
+        for cow in other_creatures:
+            if isinstance(cow, Cow):
+                self.hp = min(self.hp +50, self.start_hp*2)
+                cow.eaten() # hier die Kuh töten
+                break # nur die erste kuh fressen
+
 
 
 """

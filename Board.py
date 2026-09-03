@@ -1,7 +1,5 @@
-import time
 import os
-import random
-from Creature import *
+from Creature import Creature, Cow, Wolf, Grass
 
 class Board():
     # dict 80 * 24 zellen.
@@ -61,45 +59,12 @@ class Board():
             for id in ids:
                 cell.append(self.creature_registry[id])
             for creature in cell:
-                creature.withyou(cell)
+                if isinstance(creature, Wolf):
+                    creature.hunt(cell)
+                if isinstance(creature, Cow):
+                    creature.eat(cell)
+        dead = [creature for creature in self.creature_registry.values() if creature.hp <= 0]
+        for creature in dead:
+            self.remove_creature(creature)
 
 
-def main():
-    board = Board(80, 24)
-    speed = 0.3
-
-    animals = [
-        [Cow(name="muh"),     0,  0],
-        [Wolf(name="boeser"), 1,  2],
-        [Cow(name="muh2"),    5,  0],
-        [Wolf(name="rudel"), 40, 10],
-        [Grass(name="g"),    10, 20],
-        [Cow(name="muh3"), 60, 5]
-    ]
-
-    for animal, x, y in animals:
-        board.place_creature(animal, x, y)
-
-    for step in range(90):
-        os.system('clear')
-        board.draw()
-        time.sleep(speed)
-
-        for entry in animals:
-            animal, x, y = entry
-            if isinstance(animal, Grass):
-                continue                      # plants stay put
-
-            # random -1, 0 or +1 in each direction
-            new_x = x + random.randint(-1, 1)
-            new_y = y + random.randint(-1, 1)
-
-            # keep within bounds
-            new_x = max(0, min(new_x, 79))
-            new_y = max(0, min(new_y, 23))
-
-            board.move_creature(animal, new_x, new_y)
-            entry[1], entry[2] = new_x, new_y
-
-if __name__ == "__main__":
-    main()
