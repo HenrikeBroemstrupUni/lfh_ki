@@ -46,7 +46,24 @@ class Board():
         return not Board.is_valid_bounds(position)
 
 
-    ### AB HIER TERMINAL AUSGABE ###
+    def analyse(self, creature, radius):
+        x, y = self.locations_by_id[creature.id]
+        relative_positions = {}
+        # in x und y richtung schauen welche kreturen vorhangen sind
+        for i in range(x - radius, x + radius + 1):
+            for j in range(y - radius, y + radius + 1):
+                if Board.is_valid_bounds((i, j)) and (i, j) in self.locations:
+                    ids = self.locations[(i, j)]
+                    cell = [self.creature_registry[id] for id in ids]
+                    # die eigene celle ist die kreatru selbst, aber evtl steht da noch jemadn mit
+                    if (i, j) == (x, y):
+                        cell = creature.withyou(cell)
+                    relative_position = (i -x, j -y)
+                    relative_positions[relative_position] = cell
+        return relative_positions
+
+
+
     def draw(self):
         for y in range(self.size_y):
             row = ""
@@ -66,7 +83,13 @@ class Board():
 
 
     def tick(self):
-        # phase 1 movement
+        # phase 1 umgebung analysieren (erstmal nur für cow testen)
+        for creature in self.creature_registry.values():
+            if isinstance(creature, Cow):
+                surroundings = self.analyse(creature, 2)
+                creature.compute_environment(surroundings)
+
+        # phase 2 movement
         creatures_to_move = list(self.creature_registry.values())
         for creature in creatures_to_move:
             current_position = self.locations_by_id[creature.id]
@@ -77,7 +100,7 @@ class Board():
                 new_x, new_y = new_position
                 self.move_creature(creature, new_x, new_y)
 
-        # phase 2 for interaction, zb eating
+        # phase 3 for interaction, zb eating
         for position, ids in self.locations.items():
             cell = []
             for id in ids:
@@ -88,7 +111,7 @@ class Board():
                 if isinstance(creature, Cow):
                     creature.eat(cell)
 
-        # phase 3 remove the dead
+        # phase 4 remove the dead
         dead = [creature for creature in self.creature_registry.values() if creature.hp <= 0]
         for creature in dead:
             self.remove_creature(creature)

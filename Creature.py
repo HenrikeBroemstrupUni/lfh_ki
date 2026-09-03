@@ -60,6 +60,7 @@ class Cow(Herbivore):
     def __init__(self, name):
         super().__init__(name, 200)
         self.start_hp = self.hp
+        self.surroundings = {}
 
     def eat(self, cell):
         other_creatures = self.withyou(cell)
@@ -68,6 +69,10 @@ class Cow(Herbivore):
                 self.hp = min(self.hp + 10, self.start_hp*2 )
                 plant.eaten()
                 break
+
+    def compute_environment(self, surroundings):
+        self.surroundings = surroundings
+
 
 class Wolf(Carnivore):
     def __init__(self, name):
@@ -83,27 +88,3 @@ class Wolf(Carnivore):
                 cow.eaten() # hier die Kuh töten
                 break # nur die erste kuh fressen
 
-
-
-"""
-def main():
-    wolf1 = Wolf('wolf1')
-    print(wolf1.name)
-    print(wolf1.hp)
-    print(wolf1.id)
-
-    wolf2 = Wolf('wolf2')
-    print(wolf1.__eq__(wolf2))
-    print(wolf1 == wolf2)  # ist genau wie __eq__
-
-    creature1 = Creature('creature1', 100)
-    creature2 = Creature('creature2', 100)
-    print(wolf1 == creature1)
-    print(creature1 == creature2)
-
-    # true:
-    print(wolf1 == wolf1)
-
-if __name__ == '__main__':
-    main()
-"""
