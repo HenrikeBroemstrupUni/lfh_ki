@@ -3,11 +3,10 @@ import os
 import random
 from Board import Board
 from Creature import Cow, Wolf, Grass
-
+import csv
 
 def main():
     board = Board(80, 24)
-    speed = 0.3
 
     animals = [
         [Cow(name="muh"), 0, 0],
@@ -52,12 +51,18 @@ def main():
     for animal, x, y in animals:
         board.place_creature(animal, x, y)
 
-    for step in range(10000):
-        os.system('cls' if os.name == 'nt' else 'clear')
-        board.draw()
-        time.sleep(speed)
-        board.tick()
+    with open("stats_smart_cows.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["tick", "cows_alive", "wolves_alive"])
 
+        for step in range(10000):
+            # os.system('cls' if os.name == 'nt' else 'clear')
+            # board.draw()
+            # time.sleep(speed)
+            board.tick()
+            cows_alive = len([creature for creature in board.creature_registry.values() if isinstance(creature, Cow)])
+            wolves_alive = len([creature for creature in board.creature_registry.values() if isinstance(creature, Wolf)])
+            writer.writerow([step, cows_alive, wolves_alive])
 
 if __name__ == "__main__":
     main()
