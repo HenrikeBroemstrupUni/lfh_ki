@@ -21,9 +21,11 @@ def hill_climbing(start_x, start_y):
         if not has_improved:
             return current_x, current_y
 
-# Hier erstmal nur für die 4 benachbarten felder, noch für 8 also diagonal gehen umsetzen da die kühe auch diagonal laufen
+
+# Auch diagonal laufen!
 def find_neighbors(x, y):
-    return [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+    possible_directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
+    return [(x + dx, y + dy) for dx, dy in possible_directions]
 
 
 """
@@ -50,4 +52,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
