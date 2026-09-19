@@ -10,7 +10,6 @@ def main():
     speed = 0.3
 
     animals = [
-        # ursprüngliche
         [Cow(name="muh"), 0, 0],
         [Wolf(name="boeser"), 1, 2],
         [Cow(name="muh2"), 5, 0],
@@ -53,7 +52,7 @@ def main():
     for animal, x, y in animals:
         board.place_creature(animal, x, y)
 
-    for step in range(90):
+    for step in range(10000):
         os.system('cls' if os.name == 'nt' else 'clear')
         board.draw()
         time.sleep(speed)

@@ -1,4 +1,3 @@
-import os
 from Creature import Creature, Cow, Wolf, Grass
 
 class Board():

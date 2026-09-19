@@ -73,6 +73,20 @@ class Cow(Herbivore):
     def compute_environment(self, surroundings):
         self.surroundings = surroundings
 
+    def move_request(self, current_position):
+        for relative_position, creatures in self.surroundings.items():
+            for creature in creatures:
+                if isinstance(creature, Carnivore):
+                    # hier: Wolf gefunden, relative_position ist seine Richtung
+                    flee_dx = -relative_position[0]
+                    flee_dy = -relative_position[1]
+                    x, y = current_position
+                    new_position = (x + flee_dx, y + flee_dy)
+                    return new_position
+        return self.random_move_request(current_position)
+
+
+
 
 class Wolf(Carnivore):
     def __init__(self, name):
@@ -87,4 +101,3 @@ class Wolf(Carnivore):
                 self.hp = min(self.hp +50, self.start_hp*2)
                 cow.eaten() # hier die Kuh töten
                 break # nur die erste kuh fressen
-
