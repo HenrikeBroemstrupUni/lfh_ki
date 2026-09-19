@@ -1,4 +1,3 @@
-import os
 from Creature import Creature, Cow, Wolf, Grass
 
 class Board():
@@ -115,5 +114,3 @@ class Board():
         dead = [creature for creature in self.creature_registry.values() if creature.hp <= 0]
         for creature in dead:
             self.remove_creature(creature)
-
-
