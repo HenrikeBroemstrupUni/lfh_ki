@@ -1,4 +1,5 @@
 import random
+
 class Creature:
     counter = 0
     def __init__(self, name, start_hp):

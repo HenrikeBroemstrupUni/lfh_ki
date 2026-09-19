@@ -1,6 +1,9 @@
 from src.Creature import Creature, Cow, Wolf, Grass
 import numpy as np
 
+SMELL_DECAY_RATE = 0.6
+COW_EMIT_RATE = 50
+
 class Board:
     def __init__(self, size_x, size_y):
         self.size_x = size_x
@@ -33,7 +36,6 @@ class Board:
         self.creature_registry.pop(creature.id)
         if not self.locations[(position_x, position_y)]:
             del self.locations[(position_x, position_y)]
-
 
     def check_boarders(self, position_x: int, position_y: int):
         if Board.is_fail_bounds((position_x, position_y)):
@@ -90,7 +92,7 @@ class Board:
         Main functionality of Board, all actions happen here
         """
         # phase 0 gerüche halbieren
-        self.smell_map *= 0.5 # evtl npch eigene funktion hierfür
+        self.smell_map *= SMELL_DECAY_RATE # evtl npch eigene funktion hierfür
         # phase 1 umgebung analysieren
         self.get_surroundings()
         self.movement()
@@ -117,7 +119,7 @@ class Board:
         for creature in self.creature_registry.values():
             if isinstance(creature, Cow):
                 x, y = self.locations_by_id[creature.id]
-                self.smell_map[y, x] += 100
+                self.smell_map[y, x] += COW_EMIT_RATE
 
 
     def remove_the_dead(self):
