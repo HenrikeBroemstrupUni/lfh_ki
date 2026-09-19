@@ -10,7 +10,7 @@ class Board:
         self.locations = {}
         self.creature_registry = {}
         self.locations_by_id = {}
-        self.smell_map = np.zeros((size_x, size_y)) # gitter mit 0.0 für jeden eintrag des boards
+        self.smell_map = np.zeros((size_y, size_x)) # gitter mit 0.0 für jeden eintrag des boards
 
 
     def place_creature(self, creature: Creature, position_x, position_y):
@@ -68,6 +68,22 @@ class Board:
                     relative_positions[relative_position] = cell
         return relative_positions
 
+    def smell_at(self, position):
+        x, y = position
+        return self.smell_map[y, x]
+
+    def find_neighbors(self, x, y):
+        possible_directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
+        return [(x + dx, y + dy) for dx, dy in possible_directions]
+
+    def analyse_smell_surroundings(self, creature, radius=1):
+        x, y = self.locations_by_id[creature.id]
+        neighbors = self.find_neighbors(x, y)
+        local_smells = {}
+        for neighbor in neighbors:
+            if Board.is_valid_bounds(neighbor):
+                local_smells[neighbor] = self.smell_at(neighbor)
+        return local_smells
 
     def tick(self):
         """
@@ -75,14 +91,14 @@ class Board:
         """
         # phase 0 gerüche halbieren
         self.smell_map *= 0.5 # evtl npch eigene funktion hierfür
-        # phase 1 umgebung analysieren (später radius pro tier statt hardcoded 2)
+        # phase 1 umgebung analysieren
         self.get_surroundings()
         self.movement()
         # kühe senden geruch ab
         self.emit_smell()
         self.interact()
         # geruch verteilt sich
-        self.propagate_smells()
+        self.smell_map = self.propagate_smells()
         self.remove_the_dead()
 
 
@@ -97,12 +113,11 @@ class Board:
                 if isinstance(creature, Cow):
                     creature.eat(cell)
 
-
     def emit_smell(self):
         for creature in self.creature_registry.values():
             if isinstance(creature, Cow):
-                position = self.locations_by_id[creature.id]
-                self.smell_map[position] += 100
+                x, y = self.locations_by_id[creature.id]
+                self.smell_map[y, x] += 100
 
 
     def remove_the_dead(self):
@@ -124,10 +139,18 @@ class Board:
 
 
     def get_surroundings(self):
+        """
+        calculate surronding for each cow, calculate smells around each wolf
+        """
         for creature in self.creature_registry.values():
             if isinstance(creature, Cow):
-                surroundings = self.analyse(creature, 2)
+                surroundings = self.analyse(creature, 4)
                 creature.compute_environment(surroundings)
+
+        for creature in self.creature_registry.values():
+            if isinstance(creature, Wolf):
+                local_smells = self.analyse_smell_surroundings(creature, 1)
+                creature.compute_smell_environment(local_smells)
 
 
     def propagate_smells(self):

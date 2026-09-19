@@ -7,19 +7,18 @@ def hill_climbing(start_x, start_y):
     current_x, current_y = start_x, start_y
     smell = calculate_smell(start_x, start_y)
 
-    while True:
-        possible_movements = find_neighbors(current_x, current_y)
-        has_improved = False
+    possible_movements = find_neighbors(current_x, current_y)
+    # has_improved = False
 
-        for movement in possible_movements:
-            new_smell = calculate_smell(movement[0], movement[1])
-            if new_smell > smell:  # führt einer der 4 möglichen schritte zur verbeserung des smells?
-                smell = new_smell
-                current_x, current_y = movement
-                has_improved = True
+    for movement in possible_movements:
+        new_smell = calculate_smell(movement[0], movement[1])
+        if new_smell > smell:  # führt einer der 4 möglichen schritte zur verbeserung des smells?
+            smell = new_smell
+            current_x, current_y = movement
+            # has_improved = True
 
-        if not has_improved:
-            return current_x, current_y
+    return current_x, current_y
+
 
 
 # Auch diagonal laufen!

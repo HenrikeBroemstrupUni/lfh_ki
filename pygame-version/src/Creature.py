@@ -78,20 +78,19 @@ class Cow(Herbivore):
             for creature in creatures:
                 if isinstance(creature, Carnivore):
                     # hier: Wolf gefunden, relative_position ist seine Richtung
-                    flee_dx = -relative_position[0]
-                    flee_dy = -relative_position[1]
+                    flee_dx = -(relative_position[0] > 0) + (relative_position[0] < 0)
+                    flee_dy = -(relative_position[1] > 0) + (relative_position[1] < 0)
                     x, y = current_position
                     new_position = (x + flee_dx, y + flee_dy)
                     return new_position
         return self.random_move_request(current_position)
 
 
-
 class Wolf(Carnivore):
     def __init__(self, name):
         super().__init__(name, 100)
         self.start_hp = self.hp
-
+        self.local_smells = {}
 
     def hunt(self, cell):
         other_creatures = self.withyou(cell)
@@ -100,3 +99,22 @@ class Wolf(Carnivore):
                 self.hp = min(self.hp +50, self.start_hp*2)
                 cow.eaten() # hier die Kuh töten
                 break # nur die erste kuh fressen
+
+    def move_request(self, current_position):
+        return self.hill_climbing(current_position)
+
+    def compute_smell_environment(self, local_smells):
+        self.local_smells = local_smells
+
+    def hill_climbing(self, current_position):
+        current_x, current_y = current_position
+        smell = self.local_smells.get(current_position, 0)
+
+        has_improved = False
+        for movement, new_smell in self.local_smells.items():
+            if new_smell > smell:
+                smell = new_smell
+                current_x, current_y = movement
+                has_improved = True
+
+        return current_x, current_y
