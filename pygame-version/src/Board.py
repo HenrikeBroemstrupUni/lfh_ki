@@ -10,8 +10,7 @@ class Board:
         self.locations = {}
         self.creature_registry = {}
         self.locations_by_id = {}
-
-        self.smells = np.zeros((size_x, size_y)) # gitter mit 0.0 für jeden eintrag des boards
+        self.smell_map = np.zeros((size_x, size_y)) # gitter mit 0.0 für jeden eintrag des boards
 
 
     def place_creature(self, creature: Creature, position_x, position_y):
@@ -75,13 +74,15 @@ class Board:
         Main functionality of Board, all actions happen here
         """
         # phase 0 gerüche halbieren
-        self.smells *= 0.5 # evtl npch eigene funktion hierfür
+        self.smell_map *= 0.5 # evtl npch eigene funktion hierfür
         # phase 1 umgebung analysieren (später radius pro tier statt hardcoded 2)
         self.get_surroundings()
         self.movement()
         # kühe senden geruch ab
         self.emit_smell()
         self.interact()
+        # geruch verteilt sich
+        self.propagate_smells()
         self.remove_the_dead()
 
 
@@ -101,7 +102,7 @@ class Board:
         for creature in self.creature_registry.values():
             if isinstance(creature, Cow):
                 position = self.locations_by_id[creature.id]
-                self.smells[position] += 100
+                self.smell_map[position] += 100
 
 
     def remove_the_dead(self):
@@ -127,3 +128,30 @@ class Board:
             if isinstance(creature, Cow):
                 surroundings = self.analyse(creature, 2)
                 creature.compute_environment(surroundings)
+
+
+    def propagate_smells(self):
+        # für jede einzelne zelle 1x pro tick schauen (4 er Umgebung, also nicht diagonal)
+        old_smells = self.smell_map.copy()
+        new_smells = self.smell_map.copy()
+
+        # 1. Bedingung prüfen: Ist die Quelle stärker als das Ziel? (von stärker riechender zelle aus gesehen)
+        mask_down = old_smells[:-1, :] > old_smells[1:, :]  # Von oben nach unten
+        mask_up = old_smells[1:, :] > old_smells[:-1, :]  # Von unten nach oben
+        mask_right = old_smells[:, :-1] > old_smells[:, 1:]  # Von links nach rechts
+        mask_left = old_smells[:, 1:] > old_smells[:, :-1]  # Von rechts nach links
+
+        # 2. Propagieren: Nur wo die Maske True ist, bekommt die Nachbarzelle 1/4 des Geruchs[cite: 1]
+        # np.where(Bedingung, Wert_wenn_wahr, Wert_wenn_falsch)
+        prop_down = np.where(mask_down, old_smells[:-1, :] / 4, 0)
+        prop_up = np.where(mask_up, old_smells[1:, :] / 4, 0)
+        prop_right = np.where(mask_right, old_smells[:, :-1] / 4, 0)
+        prop_left = np.where(mask_left, old_smells[:, 1:] / 4, 0)
+
+        new_smells[1:, :] += prop_down
+        new_smells[:-1, :] += prop_up
+        new_smells[:, 1:] += prop_right
+        new_smells[:, :-1] += prop_left
+
+        return new_smells
+        # decay -> emission -> propagate smell
