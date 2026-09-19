@@ -12,7 +12,7 @@ def hill_climbing(start_x, start_y):
 
     for movement in possible_movements:
         new_smell = calculate_smell(movement[0], movement[1])
-        if new_smell > smell:  # führt einer der 4 möglichen schritte zur verbeserung des smells?
+        if new_smell > smell:
             smell = new_smell
             current_x, current_y = movement
             # has_improved = True

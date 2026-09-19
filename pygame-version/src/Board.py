@@ -134,6 +134,10 @@ class Board:
             current_position = self.locations_by_id[creature.id]
             new_position = creature.move_request(current_position)
 
+            # falls neue position ungültig einfach random bewegen
+            if not Board.is_valid_bounds(new_position):
+                new_position = creature.random_move_request(current_position)
+
             # check ob neue position gültig ist, sonst nicht dahin bewegen
             if (new_position != current_position) and Board.is_valid_bounds(new_position):
                 new_x, new_y = new_position
